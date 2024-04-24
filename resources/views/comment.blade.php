@@ -1,15 +1,30 @@
+<?php
+$current_time = time();
+$created_at_timestamp = strtotime($comment->created_at);
+$difference_seconds = $current_time - $created_at_timestamp;
+$difference_minutes = floor($difference_seconds / 60);
+$difference_hours = floor($difference_minutes / 60);
+$difference_days = floor($difference_hours / 24);
+?>
+
+
+
+
+
 <div class="comment">
-    <p>{{ $comment->content }}</p>
-    <!-- Nút Reply -->
-    <button class="reply-btn" data-parent-id="{{ $comment->id }}">Reply</button>
-    <!-- Form reply ẩn -->
-    <form class="reply-form" style="display: none;">
-        @csrf
-        <input type="hidden" name="parent_id" value="{{ $comment->id }}">
-        <input type="text" name="content" placeholder="Enter your reply">
-        <button type="submit">Submit</button>
-    </form>
-    <!-- Hiển thị các reply -->
+    <label for="commentName"
+           class="form-label fw-bold commentName m-0 fs-5">{{$comment->user->name}}</label>
+    <?php
+    if ($difference_days >= 1) {
+        echo "<p class='m-0'>{$difference_days} day" . ($difference_days > 1 ? "s" : "") . " ago</p>";
+    } elseif ($difference_hours >= 1) {
+        echo "<p class='m-0'>{$difference_hours} hour" . ($difference_hours > 1 ? "s" : "") . " ago</p>";
+    } else {
+        echo "<p class='m-0'>{$difference_minutes} minute" . ($difference_minutes > 1 ? "s" : "") . " ago</p>";
+    }
+    ?>
+    <p class=''>{{ $comment->content }}</p>
+    <button class="reply-btn btn btn-outline-primary" data-parent-id="{{ $comment->id }}">Reply</button>
     <div class="replies">
         @if ($comment->replies)
             @foreach ($comment->replies as $reply)
@@ -17,24 +32,44 @@
             @endforeach
         @endif
     </div>
+    <!-- Form reply ẩn -->
+    <form class="reply-form" style="display: none;">
+        @csrf
+        <input type="hidden"
+               name="user_id"
+               value="{{ auth()->user()->id }}">
+        <input type="hidden"
+               name="parent_id">
+        <label for="commentName"
+               class="form-label fw-bold">{{ auth()->user()->name }}</label>
+        <textarea
+            class="form-control commentText"
+            name="content"
+            rows="3"
+            placeholder="Enter your reply"></textarea>
+        <button type="submit"
+                class="btn btn-primary my-2">
+            Submit
+        </button>
+    </form>
+
 </div>
 <style>
     .comment {
-        /* margin-left: 20px;
-        /* Khoảng cách lề bên trái để tạo ra hiệu ứng tòa tháp */
         border-left: 2px solid #ccc;
-        /* Đường viền bên trái để tạo ra hiệu ứng tòa tháp */
         padding-left: 10px;
-        /* Khoảng cách lề bên trái để tạo ra hiệu ứng tòa tháp */
-    } */
+    }
 
     .comment:first-child {
         border-left: none;
-        /* Bỏ đường viền bên trái cho comment đầu tiên */
     }
-
+.reply-form,
     .replies {
         margin-left: 20px;
-        /* Khoảng cách lề bên trái để tạo ra hiệu ứng tòa tháp */
     }
+
+.reply-btn{
+    margin-bottom: 10px;
+}
+
 </style>

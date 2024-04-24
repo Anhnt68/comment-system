@@ -32,7 +32,8 @@ class CommentController extends Controller
             $model = new Comment();
             $model->fill($request->all());
             $model->save();
-            return response()->json(['success' => true, 'message' => 'Comment created successfully', 'comment' => $model]);
+            $user = $model->user->name;
+            return response()->json(['success' => true, 'message' => 'Comment created successfully', 'comment' => $model, 'user'=> $user]);
         } catch (\Exception $exception) {
             Log::error($exception->getMessage());
             return response()->json(['success' => false, 'message' => 'Failed to create comment']);
