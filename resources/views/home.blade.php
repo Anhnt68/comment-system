@@ -28,8 +28,22 @@
                                             <div class="col-md-12">
                                                 <label for="commentName"
                                                        class="form-label fw-bold">{{$content->user->name}}</label>
+                                                    <?php
+                                                    $current_time = time();
+                                                    $created_at_timestamp = strtotime($content->created_at);
+                                                    $difference_seconds = $current_time - $created_at_timestamp;
+                                                    $difference_minutes = floor($difference_seconds / 60);
+                                                    $difference_hours = floor($difference_minutes / 60);
+                                                    $difference_days = floor($difference_hours / 24);
+                                                    if ($difference_days >= 1) {
+                                                        echo "<p>{$difference_days} day" . ($difference_days > 1 ? "s" : "") . " ago</p>";
+                                                    } elseif ($difference_hours >= 1) {
+                                                        echo "<p>{$difference_hours} hour" . ($difference_hours > 1 ? "s" : "") . " ago</p>";
+                                                    } else {
+                                                        echo "<p>{$difference_minutes} minute" . ($difference_minutes > 1 ? "s" : "") . " ago</p>";
+                                                    }
+                                                    ?>
                                                 <p>{{$content->content}}</p>
-                                                <!-- Nút reply -->
                                                 <button class="btn btn-outline-primary replyBtn"
                                                         data-user-id="{{$content->user_id}}">reply
                                                 </button>
@@ -50,6 +64,21 @@
                                                                 <div class="col-md-12">
                                                                     <label for="commentName"
                                                                            class="form-label fw-bold">{{$child->user->name}}</label>
+                                                                        <?php
+                                                                        $current_time = time();
+                                                                        $created_at_timestamp = strtotime($child->created_at);
+                                                                        $difference_seconds = $current_time - $created_at_timestamp;
+                                                                        $difference_minutes = floor($difference_seconds / 60);
+                                                                        $difference_hours = floor($difference_minutes / 60);
+                                                                        $difference_days = floor($difference_hours / 24);
+                                                                        if ($difference_days >= 1) {
+                                                                            echo "<p>{$difference_days} day" . ($difference_days > 1 ? "s" : "") . " ago</p>";
+                                                                        } elseif ($difference_hours >= 1) {
+                                                                            echo "<p>{$difference_hours} hour" . ($difference_hours > 1 ? "s" : "") . " ago</p>";
+                                                                        } else {
+                                                                            echo "<p>{$difference_minutes} minute" . ($difference_minutes > 1 ? "s" : "") . " ago</p>";
+                                                                        }
+                                                                        ?>
                                                                     <p>{{$child->content}}</p>
                                                                     <!-- Nút reply -->
                                                                     <button class="btn btn-outline-primary replyBtn"
