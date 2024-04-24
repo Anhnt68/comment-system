@@ -23,7 +23,8 @@ Route::post('/admin', [LoginController::class, 'adminLogin'])->name('admin.login
 
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
-Route::get('/comment', [HomeController::class, 'store'])->name('comment');
+
+// Route::get('/comment', [HomeController::class, 'store'])->name('comment');
 
 Route::get('/admin/dashboard', function () {
     return view('admin');
