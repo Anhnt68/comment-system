@@ -23,11 +23,11 @@
 
                                 <div class="col-md-11">
                                     <!-- Nội dung comment cha -->
-                                    <div class="row">
+                                    <div class="row" id="commentReplySection{{ $content->id }}" data-parent-id="{{ $content->id }}">
                                         @if($content->parent_id == null)
                                             <div class="col-md-12">
                                                 <label for="commentName"
-                                                       class="form-label">{{$content->user->name}} {{$content->parent_id}}</label>
+                                                       class="form-label fw-bold">{{$content->user->name}}</label>
                                                 <p>{{$content->content}}</p>
                                                 <!-- Nút reply -->
                                                 <button class="btn btn-outline-primary replyBtn"
@@ -37,7 +37,7 @@
                                         @endif
                                         @foreach($data as $child)
                                             @if($child->parent_id != null && $child->parent_id == $content->id)
-                                                <div class="comment-reply ml-4">
+                                                <div class="comment-reply ml-4" >
                                                     <div class="row d-flex">
                                                         <div class="col-md-1">
                                                             <img
@@ -49,7 +49,7 @@
                                                             <div class="row">
                                                                 <div class="col-md-12">
                                                                     <label for="commentName"
-                                                                           class="form-label">{{$child->user->name}}</label>
+                                                                           class="form-label fw-bold">{{$child->user->name}}</label>
                                                                     <p>{{$child->content}}</p>
                                                                     <!-- Nút reply -->
                                                                     <button class="btn btn-outline-primary replyBtn"
@@ -63,38 +63,47 @@
                                                                                 <div class="col-md-1">
                                                                                     <img
                                                                                         src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXPodEp1Zyixlyx1Rrq6JJlPm0hgg1pFeLNrxgt2bkYw&s"
-                                                                                        alt="" style="width: 100px;height: 100px;">
+                                                                                        alt=""
+                                                                                        style="width: 100px;height: 100px;">
                                                                                 </div>
                                                                                 <div class="col-md-11">
                                                                                     <!-- Nội dung comment con -->
                                                                                     <div class="row">
                                                                                         <div class="col-md-12">
                                                                                             <label for="commentName"
-                                                                                                   class="form-label">{{$child1->user->name}}</label>
+                                                                                                   class="form-label fw-bold">{{$child1->user->name}}</label>
                                                                                             <p>{{$child1->content}}</p>
                                                                                             <!-- Nút reply -->
-                                                                                            <button class="btn btn-outline-primary replyBtn"
-                                                                                                    data-user-id="{{$child1->user_id}}">reply
+                                                                                            <button
+                                                                                                class="btn btn-outline-primary replyBtn"
+                                                                                                data-user-id="{{$child1->user_id}}">
+                                                                                                reply
                                                                                             </button>
                                                                                         </div>
                                                                                     </div>
                                                                                     <!-- Form trả lời cho comment con -->
-                                                                                    <div class="replyForm" style="display: none;">
-                                                                                        <form class="commentReplyForm"
-                                                                                              id="commentReplyForm{{$child1->id}}"
+                                                                                    <div class="replyForm"
+                                                                                         style="display: none;">
+                                                                                        <form id="commentForm"
                                                                                               action="{{ route('comment.store') }}"
                                                                                               method="post">
                                                                                             @csrf
-                                                                                            <input type="hidden" name="user_id"
+                                                                                            <input type="hidden"
+                                                                                                   name="user_id"
                                                                                                    value="{{ auth()->user()->id }}">
-                                                                                            <input type="hidden" name="parent_id"
+                                                                                            <input type="hidden"
+                                                                                                   name="parent_id"
                                                                                                    value="{{ $child1->id }}">
                                                                                             <label for="commentName"
-                                                                                                   class="form-label">{{ auth()->user()->name }}</label>
-                                                                                            <textarea class="form-control" name="content"
-                                                                                                      rows="3"
-                                                                                                      placeholder="Enter your reply"></textarea>
-                                                                                            <button type="submit" class="btn btn-primary my-2">
+                                                                                                   class="form-label fw-bold">{{ auth()->user()->name }}</label>
+                                                                                            <textarea
+                                                                                                class="form-control"
+                                                                                                id="commentText"
+                                                                                                name="content"
+                                                                                                rows="3"
+                                                                                                placeholder="Enter your reply"></textarea>
+                                                                                            <button type="submit"
+                                                                                                    class="btn btn-primary my-2">
                                                                                                 Submit
                                                                                             </button>
                                                                                         </form>
@@ -107,18 +116,19 @@
                                                             </div>
                                                             <!-- Form trả lời cho comment con -->
                                                             <div class="replyForm" style="display: none;">
-                                                                <form class="commentReplyForm"
-                                                                      id="commentReplyForm{{$child->id}}" data-id ={{$child->id}}
-{{--                                                                      action="{{ route('comment.store') }}"--}}
+                                                                <form id="commentForm"
+                                                                      action="{{ route('comment.store') }}"
                                                                       method="post">
+
                                                                     @csrf
                                                                     <input type="hidden" name="user_id"
                                                                            value="{{ auth()->user()->id }}">
                                                                     <input type="hidden" name="parent_id"
                                                                            value="{{ $child->id }}">
                                                                     <label for="commentName"
-                                                                           class="form-label">{{ auth()->user()->name }}</label>
-                                                                    <textarea class="form-control" name="content"
+                                                                           class="form-label fw-bold">{{ auth()->user()->name }}</label>
+                                                                    <textarea class="form-control" id="commentText"
+                                                                              name="content"
                                                                               rows="3"
                                                                               placeholder="Enter your reply"></textarea>
                                                                     <button type="submit" class="btn btn-primary my-2">
@@ -134,14 +144,13 @@
                                     </div>
                                     <!-- Form trả lời cho comment cha -->
                                     <div class="replyForm" style="display: none;">
-                                        <form class="commentReplyForm" id="commentReplyForm{{$content->id}}"
-                                              action="{{ route('comment.store') }}" method="post">
+                                        <form id="commentForm" action="{{ route('comment.store') }}" method="post">
                                             @csrf
                                             <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
                                             <input type="hidden" name="parent_id" value="{{ $content->id }}">
                                             <label for="commentName"
-                                                   class="form-label">{{ auth()->user()->name }}</label>
-                                            <textarea class="form-control" name="content" rows="3"
+                                                   class="form-label  fw-bold">{{ auth()->user()->name }}</label>
+                                            <textarea class="form-control" name="content" id="commentText" rows="3"
                                                       placeholder="Enter your reply"></textarea>
                                             <button type="submit" class="btn btn-primary my-2">Submit</button>
                                         </form>
@@ -149,9 +158,7 @@
                                 </div>
                             </div>
                         </div>
-
                         <!-- Kiểm tra và hiển thị comment con -->
-
                     @endforeach
 
                 @endif
@@ -168,10 +175,11 @@
                 <form id="commentForm" action="{{ route('comment.store') }}" method="post">
                     @csrf
                     <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+                    <input type="hidden" name="parent_id" value="0">
 
                     <label for="commentName"
-                           class="form-label">{{auth()->user()->name}}</label>
-                    <textarea class="form-control" name="content" id="commentText"
+                           class="form-label fw-bold">{{auth()->user()->name}}</label>
+                    <textarea class="form-control" name="content" id="commentText1"
                               rows="3"
                               placeholder="Enter your comment"></textarea>
                     <button type="submit" class="btn btn-primary my-2">Submit</button>
@@ -191,6 +199,7 @@
             $('form#commentForm').on('submit', function (e) {
                 e.preventDefault();
                 var formData = $(this).serialize();
+                var parentId = $(this).find('input[name="parent_id"]').val();
                 $.ajax({
                     type: "POST",
                     url: "{{ route('comment.store') }}",
@@ -206,16 +215,22 @@
                             <div class="col-md-11">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <label for="commentName" class="form-label">{{ auth()->user()->name }}</label>
+                                        <label for="commentName" class="form-label fw-bold">{{ auth()->user()->name }}</label>
                                         <p>${comment.content}</p>
                                         <button type="submit" class="btn btn-outline-primary">reply</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    `;
-                            $('#commentSection').append(newCommentHtml);
-                            $('#commentText').val('');
+                        `
+                            if (response.comment.parent_id == 0) {
+                                $('#commentSection').append(newCommentHtml);
+                                $('#commentText1').val('');
+                            } else {
+                                console.log($('#commentText').val());
+                                $('#commentText').val('');
+                                $('[data-parent-id="' + parentId + '"]').after(newCommentHtml);
+                            }
                         } else {
                             alert('Failed to create comment');
                         }
@@ -225,45 +240,6 @@
                     }
                 });
             });
-
-            $('form#commentReplyForm').on('submit', function (e) {
-                e.preventDefault();
-                var formData = $(this).serialize();
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('comment.store') }}",
-                    data: formData,
-                    success: function (response) {
-                        if (response.success) {
-                            var comment = response.comment;
-                            var newCommentHtml = `
-                        <div class="row d-flex">
-                            <div class="col-md-1">
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXPodEp1Zyixlyx1Rrq6JJlPm0hgg1pFeLNrxgt2bkYw&s" alt="" style="width: 100px;height: 100px;">
-                            </div>
-                            <div class="col-md-11">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <label for="commentName" class="form-label">{{ auth()->user()->name }}</label>
-                                        <p>${comment.content}</p>
-                                        <button type="submit" class="btn btn-outline-primary">reply</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                            $('#commentSection').append(newCommentHtml);
-                            $('#commentText').val('');
-                        } else {
-                            alert('Failed to create comment');
-                        }
-                    },
-                    error: function () {
-                        alert('Failed to create comment');
-                    }
-                });
-            });
-
         });
     </script>
 @endsection
