@@ -25,6 +25,9 @@ $difference_days = floor($difference_hours / 24);
     ?>
     <p class=''>{{ $comment->content }}</p>
     <button class="reply-btn btn btn-outline-primary" data-parent-id="{{ $comment->id }}">Reply</button>
+    <a href="https://www.facebook.com/sharer/sharer.php?u=http://comment-system.test/home" target="_blank"><i class="fab fa-facebook-square fs-3"></i></a>
+    <a href="https://twitter.com/intent/tweet?&url=http://comment-system.test/home" target="_blank"><i class="fab fa-twitter-square fs-3"></i></a>
+    <a href="https://t.me/share/url?url=http://comment-system.test/home" target="_blank"><i class="fab fa-telegram fs-3"></i></a>
     <div class="replies">
         @if ($comment->replies)
             @foreach ($comment->replies as $reply)

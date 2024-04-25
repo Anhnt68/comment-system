@@ -15,9 +15,14 @@ return new class extends Migration
             $table->id();
             $table->string('content');
             $table->integer('parent_id')->nullable();
-            $table->string('url')->nullable();
+            $table->string('url_id')->nullable();
+            $table->string('identify')->nullable();
+            $table->string('status')->nullable();
+            $table->string('identity')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('url_id')->references('id')->on('urls')->onDelete('cascade');
+            $table->datetimes('deleted_at')->nullable();
             $table->timestamps();
         });
     }
