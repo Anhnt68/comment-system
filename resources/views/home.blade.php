@@ -76,7 +76,7 @@
         </div>
     </div>
 </nav>
-<div class="container mt-5">
+<div class="container comment mt-5">
     <h1>Comments</h1>
     <form id="commentForm"
           action="{{ route('comment.store') }}"
@@ -90,11 +90,12 @@
         <label for="commentName"
                class="form-label fw-bold commentName mb-2 fs-5">{{ auth()->user()->name }}</label>
         <input type="text"
-               class="form-control commentText pb-2 mb-2 rounded-0 text-dark border-bottom border-dark outline-0 border-0"
+               class="form-control commentText pb-2 mb-4 rounded-0 text-dark border-bottom border-dark outline-0 border-0"
                name="content"
+               id="commentText"
                placeholder="Enter your reply">
         <div class="d-flex justify-content-between align-items-center my-2">
-            <p id="iconButton" class="m-0"><i class="far fa-laugh"></i></p>
+            <p id="iconButton" class="m-0 iconButton"><i class="far fa-laugh"></i></p>
             <button type="submit"
                     class="btn btn-primary">
                 Submit
@@ -119,90 +120,50 @@
         crossorigin="anonymous"></script>
 <script>
     $(document).ready(function () {
-        $('#iconButton').on('click', function () {
+        var commentText = $('#commentText');
+        var submitButton = $('#submitButton');
+
+// Khi input được focus
+        commentText.focus(function () {
+            submitButton.show(); // Hiển thị nút submit
+            $(this).addClass('active'); // Thêm class "active" cho input được focus
+        });
+
+// Khi input mất focus
+        commentText.blur(function () {
+            // Nếu không có text trong input
+            if ($(this).val().trim() === '') {
+                submitButton.hide(); // Ẩn nút submit
+                $(this).removeClass('active'); // Xóa class "active" cho input
+            }
+        });
+
+        $(document).on('click', '.iconButton', function () {
             var modal = $('#iconModal');
             modal.css('display', 'block');
+
             var iconList = $('#iconList');
-            iconList.html('');
+            iconList.html(''); // Xóa nội dung cũ
+
             var icons = [
-                '\u{1F600}', // 😄 - Smiling Face with Open Mouth and Smiling Eyes
-                '\u{1F601}', // 😁 - Grinning Face with Smiling Eyes
-                '\u{1F602}', // 😂 - Face with Tears of Joy
-                '\u{1F603}', // 😃 - Smiling Face with Open Mouth
-                '\u{1F604}', // 😄 - Smiling Face with Open Mouth and Smiling Eyes
-                '\u{1F605}', // 😅 - Smiling Face with Open Mouth and Cold Sweat
-                '\u{1F606}', // 😆 - Smiling Face with Open Mouth and Closed Eyes
-                '\u{1F607}', // 😇 - Smiling Face with Halo
-                '\u{1F608}', // 😈 - Smiling Face with Horns
-                '\u{1F609}', // 😉 - Winking Face
-                '\u{1F60A}', // 😊 - Smiling Face with Smiling Eyes
-                '\u{1F60B}', // 😋 - Face Savoring Food
-                '\u{1F60C}', // 😌 - Relieved Face
-                '\u{1F60D}', // 😍 - Smiling Face with Heart-Eyes
-                '\u{1F60E}', // 😎 - Smiling Face with Sunglasses
-                '\u{1F60F}', // 😏 - Smirking Face
-                '\u{1F610}', // 😐 - Neutral Face
-                '\u{1F611}', // 😑 - Expressionless Face
-                '\u{1F612}', // 😒 - Unamused Face
-                '\u{1F613}', // 😓 - Face with Cold Sweat
-                '\u{1F614}', // 😔 - Pensive Face
-                '\u{1F615}', // 😕 - Confused Face
-                '\u{1F616}', // 😖 - Confounded Face
-                '\u{1F617}', // 😗 - Kissing Face
-                '\u{1F618}', // 😘 - Face Throwing a Kiss
-                '\u{1F619}', // 😙 - Kissing Face with Smiling Eyes
-                '\u{1F61A}', // 😚 - Kissing Face with Closed Eyes
-                '\u{1F61B}', // 😛 - Face with Stuck-Out Tongue
-                '\u{1F61C}', // 😜 - Face with Stuck-Out Tongue and Winking Eye
-                '\u{1F61D}', // 😝 - Face with Stuck-Out Tongue and Tightly-Closed Eyes
-                '\u{1F61E}', // 😞 - Disappointed Face
-                '\u{1F61F}', // 😟 - Worried Face
-                '\u{1F620}', // 😠 - Angry Face
-                '\u{1F621}', // 😡 - Pouting Face
-                '\u{1F622}', // 😢 - Crying Face
-                '\u{1F623}', // 😣 - Persevering Face
-                '\u{1F624}', // 😤 - Face with Steam from Nose
-                '\u{1F625}', // 😥 - Sad but Relieved Face
-                '\u{1F626}', // 😦 - Frowning Face with Open Mouth
-                '\u{1F627}', // 😧 - Anguished Face
-                '\u{1F628}', // 😨 - Fearful Face
-                '\u{1F629}', // 😩 - Weary Face
-                '\u{1F62A}', // 😪 - Sleepy Face
-                '\u{1F62B}', // 😫 - Tired Face
-                '\u{1F62C}', // 😬 - Grimacing Face
-                '\u{1F62D}', // 😭 - Loudly Crying Face
-                '\u{1F62E}', // 😮 - Face with Open Mouth
-                '\u{1F62F}', // 😯 - Hushed Face
-                '\u{1F630}', // 😰 - Face with Open Mouth and Cold Sweat
-                '\u{1F631}', // 😱 - Face Screaming in Fear
-                '\u{1F632}', // 😲 - Astonished Face
-                '\u{1F633}', // 😳 - Flushed Face
-                '\u{1F634}', // 😴 - Sleeping Face
-                '\u{1F635}', // 😵 - Dizzy Face
-                '\u{1F636}', // 😶 - Face Without Mouth
-                '\u{1F637}', // 😷 - Face with Medical Mask
-                '\u{1F638}', // 😸 - Grinning Cat Face with Smiling Eyes
-                '\u{1F639}', // 😹 - Cat Face with Tears of Joy
-                '\u{1F63A}', // 😺 - Smiling Cat Face with Open Mouth
-                '\u{1F63B}', // 😻 - Smiling Cat Face with Heart-Eyes
-                '\u{1F63C}', // 😼 - Cat Face with Wry Smile
-                '\u{1F63D}', // 😽 - Kissing Cat Face with Closed Eyes
-                '\u{1F63E}', // 😾 - Pouting Cat Face
-                '\u{1F63F}', // 😿 - Crying Cat Face
-                '\u{1F640}'  // 🙀 - Weary Cat Face
+                '\u{1F600}', '\u{1F601}', '\u{1F602}', '\u{1F603}', '\u{1F604}', '\u{1F605}', '\u{1F606}', '\u{1F607}', '\u{1F608}', '\u{1F609}',
+                '\u{1F60A}', '\u{1F60B}', '\u{1F60C}', '\u{1F60D}', '\u{1F60E}', '\u{1F60F}', '\u{1F610}', '\u{1F611}', '\u{1F612}', '\u{1F613}',
+                '\u{1F614}', '\u{1F615}', '\u{1F616}', '\u{1F617}', '\u{1F618}', '\u{1F619}', '\u{1F61A}', '\u{1F61B}', '\u{1F61C}', '\u{1F61D}',
+                '\u{1F61E}', '\u{1F61F}', '\u{1F620}', '\u{1F621}', '\u{1F622}', '\u{1F623}', '\u{1F624}', '\u{1F625}', '\u{1F626}', '\u{1F627}',
+                '\u{1F628}', '\u{1F629}', '\u{1F62A}', '\u{1F62B}', '\u{1F62C}', '\u{1F62D}', '\u{1F62E}', '\u{1F62F}', '\u{1F630}', '\u{1F631}',
+                '\u{1F632}', '\u{1F633}', '\u{1F634}', '\u{1F635}', '\u{1F636}', '\u{1F637}', '\u{1F638}', '\u{1F639}', '\u{1F63A}', '\u{1F63B}',
+                '\u{1F63C}', '\u{1F63D}', '\u{1F63E}', '\u{1F63F}', '\u{1F640}'
             ];
 
-
             icons.forEach(function (icon) {
-                var iconElement = $('<span class="icon">' + icon + '</span>'); // Thay div thành span
+                var iconElement = $('<span class="icon">' + icon + '</span>');
                 iconElement.css({
-                    'display': 'inline-block',
-                    'font-size': '20px', // Kích thước 200x200
-                    'cursor': 'pointer', // Con trỏ chỉ vào biểu tượng sẽ hiện icon
-                    'margin': '5px' // Khoảng cách giữa các biểu tượng
+                    'font-size': '24px',
+                    'cursor': 'pointer',
+                    'margin': '5px'
                 });
                 iconElement.on('click', function () {
-                    var commentText = $('#commentText');
+                    var commentText = $(this).closest('.comment').find('.commentText');
                     var currentText = commentText.val();
                     var newIcon = ' ' + icon;
                     commentText.val(currentText + newIcon);
@@ -213,7 +174,17 @@
         });
 
 
-        // Function to close the modal when the user clicks outside of it
+
+
+        var modal = document.getElementById('iconModal');
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
+
+
+
         var modal = document.getElementById('iconModal');
         window.onclick = function (event) {
             if (event.target == modal) {
@@ -221,14 +192,12 @@
             }
         }
 
-        // Function to close the modal when the user clicks on the close button
         var closeBtn = document.querySelector('.close');
         closeBtn.onclick = function () {
             modal.style.display = "none";
         };
 
 
-        // Gửi comment mới qua AJAX khi form được gửi
         $('#commentForm').on('submit', function (e) {
             e.preventDefault();
             var formData = $(this).serialize();
@@ -271,17 +240,16 @@
 
                         // Nếu là comment cấp 1, thêm vào #comments
                         if (response.comment.parent_id == null) {
-                            $('#comments').append(newCommentHTML);
+                            $('#comments').prepend(newCommentHTML);
                             $('.commentText').val('');
                         } else {
                             var parentComment = $('#comments').find(
                                 '.comment[data-comment-id="' + response.comment
                                     .parent_id + '"]');
                             if (parentComment.length > 0) {
-                                parentComment.find('.replies').append(newCommentHTML);
-
+                                parentComment.find('.replies').prepend(newCommentHTML);
                             } else {
-                                $('#comments').append(newCommentHTML);
+                                $('#comments').prepend(newCommentHTML);
                             }
                         }
 
@@ -298,7 +266,7 @@
         });
 
 
-        $('.reply-form').on('submit', function (e) {
+        $(document).on('submit', '.reply-form', function (e) {
             e.preventDefault();
             var formData = $(this).serialize();
             var $form = $(this);
@@ -338,7 +306,7 @@
                             '<div class="replies"></div>' +
                             '</div>';
                         ;
-                        $form.siblings('.replies').append(newReplyHTML);
+                        $form.siblings('.replies').prepend(newReplyHTML);
                         // Xóa nội dung trong input
                         $('.commentText').val('');
 
@@ -351,6 +319,7 @@
                 }
             });
         });
+
 
         // Hiển thị form reply khi nhấp vào nút Reply
         $(document).on('click', '.reply-btn', function () {
@@ -367,18 +336,22 @@
         });
 
 
-        const shareContent = document.getElementById('share-content');
-        const socialNetwork = document.querySelector('.social-network');
+        const shareContents = document.querySelectorAll('.share-content');
 
-        shareContent.addEventListener('click', function () {
-            socialNetwork.style.display = (socialNetwork.style.display === 'block') ? 'none' : 'block';
+        shareContents.forEach(function (shareContent) {
+            const socialNetwork = shareContent.nextElementSibling;
+
+            shareContent.addEventListener('click', function () {
+                socialNetwork.style.display = (socialNetwork.style.display === 'block') ? 'none' : 'block';
+            });
+
+            socialNetwork.addEventListener('click', function (e) {
+                if (e.target.tagName === 'A') {
+                    socialNetwork.style.display = 'none';
+                }
+            });
         });
 
-        socialNetwork.addEventListener('click', function (e) {
-            if (e.target.tagName === 'A') {
-                socialNetwork.style.display = 'none';
-            }
-        });
 
         function pinIt() {
             var e = document.createElement('script');
