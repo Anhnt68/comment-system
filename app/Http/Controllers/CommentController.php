@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use GuzzleHttp\Client;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Http;
 
 class CommentController extends Controller
 {
@@ -33,30 +35,52 @@ class CommentController extends Controller
         try {
             $comment = new Comment();
             $comment->fill($request->all());
+            $comment->save();
             $user = auth()->user();
-            $content =  $request->content;
-
-            $payload =[
-                'data' => $content
-            ];
-
-            $token = JWTAuth::fromUser($user, $payload);
             return response()->json([
                 'success' => true,
-                'message' => 'Comment created successfully',
+                'message' => 'Done',
                 'comment' => $comment,
-                'token' => $token
+                'user' => $user
             ]);
+
+//            $content = $request->content;
+//
+//            $payload = [
+//                'data' => $content
+//            ];
+//            $token = JWTAuth::fromUser($user, $payload);
+//            $response = $this->sendDataToOtherAPI($comment, $token);
+//            return $response;
         } catch (\Exception $exception) {
-            // Ghi log nếu có lỗi
             Log::error($exception->getMessage());
-            // Trả về thông báo lỗi
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create comment'
             ]);
         }
     }
+
+    public function sendDataToOtherAPI($comment, $token)
+    {
+        try {
+
+            $response = Http::post('http://127.0.0.1:6600/comment/store', [
+                'token' => $token,
+                'comment' => $comment->toArray(),
+            ]);
+
+            $data = $response->json();
+            var_dump($data);
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send data to other application: ' . $e->getMessage()
+            ]);
+        }
+    }
+
 
     /**
      * Display the specified resource.
