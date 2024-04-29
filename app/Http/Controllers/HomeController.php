@@ -24,11 +24,14 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(){
+        return view('home');
+    }
+
+    public function index1(Request $request)
     {
         $comments = Comment::with('replies')->whereNull('parent_id')->orderBy('created_at', 'DESC')->get();
-        return view('home', compact('comments'));
-
+        return response()->json(['success' => true,'comment' => $comments]);
     }
 
 

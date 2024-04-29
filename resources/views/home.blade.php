@@ -101,35 +101,138 @@
                 Submit
             </button>
         </div>
-    </form>
-
-    <div id="iconModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div id="iconList" class="icon-list"></div>
+        <div id="comments">
         </div>
-    </div>
-    <div id="comments">
-        @foreach ($comments as $comment)
-            @include('comment', ['comment' => $comment])
-        @endforeach
-    </div>
+        <div id="iconModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="iconList" class="icon-list"></div>
+            </div>
+        </div>
 </div>
+
+<style>
+    .social-network {
+        display: none;
+    }
+
+    .comment1 {
+        border-left: 2px solid #ccc;
+        padding-left: 10px;
+    }
+
+    .comment:first-child {
+        border-left: none;
+    }
+
+    .reply-form,
+    .replies {
+        margin-left: 20px;
+    }
+
+    .reply-btn {
+        margin-bottom: 10px;
+    }
+</style>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
         crossorigin="anonymous"></script>
 <script>
     $(document).ready(function () {
+        // Perform AJAX request to fetch comments data
+        $.ajax({
+            type: 'GET',
+            url: "{{ route('home1') }}",
+            dataType: 'json', // Specify the expected data type
+            success: function (response) {
+                if (response.success) {
+                    var formDefault = '<h1>Comments</h1>' +
+                        '<form id="commentForm" action="{{ route('comment.store') }}" method="post">'+
+                        '@csrf' +
+                            '<input type="hidden" name="user_id" value="{{ auth()->user()->id }}">' +
+                        '<input type="hidden" name="parent_id">' +
+                    '<label for="commentName" class="form-label fw-bold commentName mb-2 fs-5">{{ auth()->user()->name }}</label>' +
+                    '<input type="text" class="form-control commentText pb-2 mb-4 rounded-0 text-dark border-bottom border-dark outline-0 border-0" name="content" id="commentText" placeholder="Enter your reply">' +
+                    '<div class="d-flex justify-content-between align-items-center my-2">' +
+                    '<p id="iconButton" class="m-0 iconButton"><i class="far fa-laugh"></i></p>' +
+                    '<button type="submit" class="btn btn-primary"> Submit </button>' +
+                    '</div>' +
+                    '</form>';
+
+                    response.comment.forEach(function(comment) {
+                        var createdTime = new Date(comment.created_at);
+                        var currentTime = new Date();
+                        var timeDifference = Math.abs(currentTime - createdTime);
+                        var minutesDifference = Math.floor(timeDifference / (1000 * 60));
+                        if (minutesDifference === 0) {
+                            minutesDifference = 1;
+                        }
+                        var newCommentHTML =
+                            '<div class="comment">' +
+                            '<label for="commentName" class="form-label fw-bold mb-2 fs-5">Nguyen Tuan Anh</label>' +
+                            '<p class="m-0">' + minutesDifference + ' minute ago</p>' +
+
+                            '<p>' + comment.content + '</p>' +
+                            '<button class="reply-btn btn btn-outline-primary" data-parent-id="' + comment.id + '">Reply</button>' +
+                            '<form class="reply-form" style="display: none;">' +
+                            '@csrf' +
+                            '<input type="hidden" name="parent_id" value="' + comment.id + '">' +
+                            '<input type="hidden" name="user_id" value="' + comment.user_id + '">' +
+                            '<input type="text" class="form-control commentText pb-2 mb-2 rounded-0 text-dark border-bottom border-dark outline-0 border-0" name="content" placeholder="Enter your reply">' +
+                            '<div class="d-flex justify-content-between align-items-center my-2">' +
+                            '<p id="iconButton" class="m-0"><i class="far fa-laugh"></i></p>' +
+                            '<button type="submit" class="btn btn-primary">Submit</button>' +
+                            '</div>' +
+                            '</form>' +
+                            '<div class="replies">';
+
+                        if (Array.isArray(comment.replies) && comment.replies.length > 0) {
+                            comment.replies.forEach(function(reply) {
+                                newCommentHTML +=
+                                    '<div class="comment1">' +
+                                    '<label for="commentName" class="form-label fw-bold mb-2 fs-5">Nguyen Tuan Anh</label>' +
+                                    '<p class="m-0">' + minutesDifference + 'minute ago</p>' +
+
+                                    '<p>' + reply.content + '</p>' +
+                                    '<button class="reply-btn btn btn-outline-primary" data-parent-id="' + reply.id + '">Reply</button>' +
+                                    '<form class="reply-form" style="display: none;">' +
+                                    '@csrf' +
+                                    '<input type="hidden" name="parent_id" value="' + reply.id + '">' +
+                                    '<input type="hidden" name="user_id" value="' + reply.user_id + '">' +
+                                    '<input type="text" class="form-control commentText pb-2 mb-2 rounded-0 text-dark border-bottom border-dark outline-0 border-0" name="content" placeholder="Enter your reply">' +
+                                    '<div class="d-flex justify-content-between align-items-center my-2">' +
+                                    '<p id="iconButton" class="m-0"><i class="far fa-laugh"></i></p>' +
+                                    '<button type="submit" class="btn btn-primary">Submit</button>' +
+                                    '</div>' +
+                                    '</form>' +
+                                    '<div class="replies"></div>' +
+                                    '</div>';
+                            });
+                        }
+                        newCommentHTML += '</div></div>';
+                        // Append the new comment HTML to the container
+                        $('.container.comment').append(newCommentHTML);
+                    });
+                } else {
+                    console.error('Failed to fetch comments');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+
+
         var commentText = $('#commentText');
         var submitButton = $('#submitButton');
 
-// Khi input được focus
+        // Khi input được focus
         commentText.focus(function () {
             submitButton.show(); // Hiển thị nút submit
             $(this).addClass('active'); // Thêm class "active" cho input được focus
         });
 
-// Khi input mất focus
+        // Khi input mất focus
         commentText.blur(function () {
             // Nếu không có text trong input
             if ($(this).val().trim() === '') {
@@ -173,32 +276,7 @@
             });
         });
 
-
-
-
-        var modal = document.getElementById('iconModal');
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        };
-
-
-
-        var modal = document.getElementById('iconModal');
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-
-        var closeBtn = document.querySelector('.close');
-        closeBtn.onclick = function () {
-            modal.style.display = "none";
-        };
-
-
-        $('#commentForm').on('submit', function (e) {
+        $(document).on('submit', '#commentForm', function (e) {
             e.preventDefault();
             var formData = $(this).serialize();
             $.ajax({
@@ -361,7 +439,8 @@
             document.body.appendChild(e);
         }
 
-    });
+    })
+    ;
 
 
 </script>

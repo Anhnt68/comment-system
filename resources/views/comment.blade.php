@@ -81,7 +81,7 @@ $difference_days = floor($difference_hours / 24);
         display: none;
     }
 
-    .comment {
+    .comment1 {
         border-left: 2px solid #ccc;
         padding-left: 10px;
     }

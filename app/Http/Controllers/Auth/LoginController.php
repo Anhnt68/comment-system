@@ -7,6 +7,8 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
+
 
 
 class LoginController extends Controller
@@ -48,11 +50,6 @@ class LoginController extends Controller
         return view('auth.login', ['route' => route('admin.login-view'), 'title'=>'Admin']);
     }
 
-    public function showVendorLoginForm()
-    {
-        return view('auth.login', ['route' => route('vendor.login-view'), 'title'=>'Vendor']);
-    }
-
     public function adminLogin(Request $request)
     {
         $this->validate($request, [
@@ -60,24 +57,23 @@ class LoginController extends Controller
             'password' => 'required|min:6'
         ]);
 
-        if (Auth::guard('admin')->attempt($request->only(['email','password']), $request->get('remember'))){
-            return redirect()->intended('/admin/dashboard');
+        if (Auth::guard('admin')->attempt($request->only(['email', 'password']), $request->get('remember'))) {
+            $user = Auth::guard('admin')->user();
+
+            // Tạo JWT token từ người dùng
+            $token = JWTAuth::fromUser($user);
+
+            // Lưu token vào cookie
+            $cookie = \Cookie::make('access_token', $token, 60);
+
+            // Chuyển hướng người dùng đến trang mong muốn
+            return redirect()->intended('/admin/dashboard')->withCookie($cookie);
         }
 
-        return back()->withInput($request->only('email', 'remember'));
-    }
-
-    public function vendorLogin(Request $request)
-    {
-        $this->validate($request, [
-            'email'   => 'required|email',
-            'password' => 'required|min:6'
+        // Trong trường hợp đăng nhập không thành công
+        return back()->withInput($request->only('email', 'remember'))->withErrors([
+            'email' => 'Email hoặc mật khẩu không đúng.'
         ]);
-
-        if (Auth::guard('vendor')->attempt($request->only(['email','password']), $request->get('remember'))){
-            return redirect()->intended('/vendor/dashboard');
-        }
-
-        return back()->withInput($request->only('email', 'remember'));
     }
+
 }

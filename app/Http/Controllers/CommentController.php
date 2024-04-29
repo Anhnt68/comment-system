@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Tymon\JWTAuth\Facades\JWTAuth;
+
 class CommentController extends Controller
 {
     /**
@@ -29,14 +31,30 @@ class CommentController extends Controller
     public function store(Request $request)
     {
         try {
-            $model = new Comment();
-            $model->fill($request->all());
-            $model->save();
-            $user = $model->user->name;
-            return response()->json(['success' => true, 'message' => 'Comment created successfully', 'comment' => $model, 'user'=> $user]);
+            $comment = new Comment();
+            $comment->fill($request->all());
+            $user = auth()->user();
+            $content =  $request->content;
+
+            $payload =[
+                'data' => $content
+            ];
+
+            $token = JWTAuth::fromUser($user, $payload);
+            return response()->json([
+                'success' => true,
+                'message' => 'Comment created successfully',
+                'comment' => $comment,
+                'token' => $token
+            ]);
         } catch (\Exception $exception) {
+            // Ghi log nếu có lỗi
             Log::error($exception->getMessage());
-            return response()->json(['success' => false, 'message' => 'Failed to create comment']);
+            // Trả về thông báo lỗi
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create comment'
+            ]);
         }
     }
 
