@@ -6,6 +6,7 @@ use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Http;
 
@@ -33,25 +34,23 @@ class CommentController extends Controller
     public function store(Request $request)
     {
         try {
-            $comment = new Comment();
-            $comment->fill($request->all());
-            $comment->save();
+            $comment = $request->all();
             $user = auth()->user();
-            return response()->json([
-                'success' => true,
-                'message' => 'Done',
-                'comment' => $comment,
-                'user' => $user
-            ]);
-
-//            $content = $request->content;
-//
-//            $payload = [
-//                'data' => $content
-//            ];
-//            $token = JWTAuth::fromUser($user, $payload);
-//            $response = $this->sendDataToOtherAPI($comment, $token);
-//            return $response;
+            $users = $user->only(['id', 'name', 'email', 'password']);
+            $username = $user->name;
+            $password = $user->password;
+            $response = $this->sendDataToOtherAPI($comment, $users, $username, $password);
+            if ($response['success']) {
+                $commentData = $response['comment'];
+                $commentData['user'] = $username;
+                return response()->json([
+                    'success' => true,
+                    'comment' => $commentData,
+                ]);
+            } else {
+                dump(2);
+                throw new \Exception('Failed to send data to other application');
+            }
         } catch (\Exception $exception) {
             Log::error($exception->getMessage());
             return response()->json([
@@ -61,18 +60,19 @@ class CommentController extends Controller
         }
     }
 
-    public function sendDataToOtherAPI($comment, $token)
+    public function sendDataToOtherAPI($comment, $user, $username, $password)
     {
         try {
-
-            $response = Http::post('http://127.0.0.1:6600/comment/store', [
-                'token' => $token,
-                'comment' => $comment->toArray(),
+            $response = Http::withBasicAuth($username, $password)->post('http://127.0.0.1:8000/api/comment/', [
+                'comment' => $comment,
+                'user' => $user
             ]);
 
-            $data = $response->json();
-            var_dump($data);
-            return response()->json($data);
+            if ($response->successful()) {
+                return $response->json();
+            } else {
+                throw new \Exception('Failed to send data to other application');
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

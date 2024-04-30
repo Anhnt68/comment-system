@@ -30,7 +30,8 @@ class HomeController extends Controller
 
     public function index1(Request $request)
     {
-        $comments = Comment::with('replies')->whereNull('parent_id')->orderBy('created_at', 'DESC')->get();
+        $comments = Comment::with('replies','user')->whereNull('parent_id')->orderBy('created_at', 'DESC')->get();
+
         return response()->json(['success' => true,'comment' => $comments]);
     }
 
