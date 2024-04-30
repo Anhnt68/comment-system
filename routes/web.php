@@ -30,4 +30,3 @@ Route::get('/admin/dashboard', function () {
     return view('admin');
 })->middleware('auth:admin');
 
-Route::post('/comment', [\App\Http\Controllers\CommentController::class, 'store']);
