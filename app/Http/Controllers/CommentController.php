@@ -35,6 +35,8 @@ class CommentController extends Controller
     {
         try {
             $comment = $request->all();
+            $url = md5(url()->to('/'));
+            $comment['url'] = $url;
             $user = auth()->user();
             $users = $user->only(['id', 'name', 'email', 'password']);
             $username = $user->name;
@@ -48,7 +50,6 @@ class CommentController extends Controller
                     'comment' => $commentData,
                 ]);
             } else {
-                dump(2);
                 throw new \Exception('Failed to send data to other application');
             }
         } catch (\Exception $exception) {

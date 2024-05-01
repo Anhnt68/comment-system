@@ -111,8 +111,8 @@
         // Perform AJAX request to fetch comments data
         $.ajax({
             type: 'GET',
-            url: "{{ route('home1') }}",
-            dataType: 'json', // Specify the expected data type
+            url: "http://127.0.0.1:8000/api/comment/",
+            dataType: 'json',
             success: function (response) {
                 console.log(response)
                 if (response.success) {
@@ -149,15 +149,40 @@
             var currentTime = new Date();
             var timeDifference = Math.abs(currentTime - createdTime);
             var minutesDifference = Math.floor(timeDifference / (1000 * 60));
-            if (minutesDifference === 0) {
-                minutesDifference = 1;
+            var timeAgo;
+
+            if (minutesDifference < 6) {
+                timeAgo = minutesDifference + ' minute ago';
+            } else if (minutesDifference < 60) {
+                timeAgo = minutesDifference + ' minutes ago';
+            } else if (minutesDifference < 1440) { // 1440 minutes = 24 hours
+                timeAgo = Math.floor(minutesDifference / 60) + ' hours ago';
+            } else {
+                timeAgo = Math.floor(minutesDifference / 1440) + ' days ago';
+            }
+
+            if (timeAgo === '0 minute ago') {
+                timeAgo = 'Just sent';
             }
             var newCommentHTML =
                 '<div class="comment">' +
                 '<label for="commentName" class="form-label fw-bold mb-2 fs-5">' + comment.user.name + '</label>' +
-                '<p class="m-0">' + minutesDifference + ' minute ago</p>' +
-                '<p>' + comment.content + '</p>' +
-                '<button class="reply-btn btn btn-outline-primary" data-parent-id="' + comment.id + '">Reply</button>' +
+                '<span class="m-0 ps-2" style="font-size: 12px;">' + timeAgo + ' </span>' +
+                '<p class="mb-0">' + comment.content + '</p>' +
+                '<button class="reply-btn btn btn-outline-primary" data-parent-id="' + comment.id + '" style="font-size: 10px;">Reply</button>' +
+                '<span class="share-container">' +
+                '<span class="share-content ps-2"><i class="fas fa-share-square"></i></span>' +
+                '<div class="social-network">' +
+                '<a href="https://www.facebook.com/sharer/sharer.php?u=http://comment-system.test/home" target="_blank"><i class="fab fa-facebook-square fs-3 pe-2" title="Facebook"></i></a>' +
+                '<a href="https://twitter.com/intent/tweet?&url=http://comment-system.test/home" target="_blank"><i class="fab fa-twitter-square fs-3 pe-2" title="Twitter"></i></a>' +
+                '<a href="https://t.me/share/url?url=http://comment-system.test/home" target="_blank"><i class="fab fa-telegram fs-3 pe-2" title="Telegram"></i></a>' +
+                '<a href="https://www.linkedin.com/shareArticle?mini=true&title=Comment System&url=http%3A%2F%2Fcomment-system.test%2Fhome" target="_blank"><i class="fab fa-linkedin fs-3 pe-2" title="Linkedin"></i></a>' +
+                '<a href="https://www.reddit.com/submit?url=http://comment-system.test/home" target="_blank"><i class="fab fa-reddit-square fs-3 pe-2" title="Reddit"></i></a>' +
+                '<a href="https://www.quora.com/share?url=http://comment-system.test/home" target="_blank"><i class="fab fa-quora fs-3 pe-2" title="Quora"></i></a>' +
+                '<a class="tumblr-share-button" href="https://www.tumblr.com/share?url=http://comment-system.test/home" target="_blank"><i class="fab fa-tumblr-square fs-3 pe-2" title="Tumblr"></i></a>' +
+                '<a class="count_pinterest" href="javascript:pinIt();"><i class="fab fa-pinterest-square fs-3 pe-2" title="Pinterest"></i></a>' +
+                '</div>' +
+                '</span>' +
                 '<form class="reply-form" style="display: none;">' +
                 '@csrf' +
                 '<input type="hidden" name="parent_id" value="' + comment.id + '">' +
@@ -188,27 +213,41 @@
             var currentTime = new Date();
             var timeDifference = Math.abs(currentTime - createdTime);
             var minutesDifference = Math.floor(timeDifference / (1000 * 60));
-            if (minutesDifference === 0) {
-                minutesDifference = 1;
+            var timeAgo;
+
+            if (minutesDifference < 6) {
+                timeAgo = minutesDifference + ' minute ago';
+            } else if (minutesDifference < 60) {
+                timeAgo = minutesDifference + ' minutes ago';
+            } else if (minutesDifference < 1440) { // 1440 minutes = 24 hours
+                timeAgo = Math.floor(minutesDifference / 60) + ' hours ago';
+            } else {
+                timeAgo = Math.floor(minutesDifference / 1440) + ' days ago';
             }
+
+            if (timeAgo === '0 minute ago') {
+                timeAgo = 'Just sent';
+            }
+
 
             var replyHTML =
                 '<div class="comment1">' +
                 '<label for="commentName" class="form-label fw-bold mb-2 fs-5">' + user + '</label>' +
-                '<p class="m-0">' + minutesDifference + 'minute ago</p>' +
-                '<p>' + reply.content + '</p>' +
-                '<button class="reply-btn btn btn-outline-primary" data-parent-id="' + reply.id + '">Reply</button>' +
-                '<form class="reply-form" style="display: none;">' +
-                '@csrf' +
-                '<input type="hidden" name="parent_id" value="' + reply.id + '">' +
-                '<input type="hidden" name="user_id" value="' + reply.user_id + '">' +
-                '<label for="commentName" class="form-label fw-bold commentName mb-2 fs-5">{{ auth()->user()->name }}</label>' +
-                '<input type="text" class="form-control commentText pb-2 mb-2 rounded-0 text-dark border-bottom border-dark outline-0 border-0" name="content" placeholder="Enter your reply">' +
-                '<div class="d-flex justify-content-between align-items-center my-2">' +
-                '<p id="iconButton" class="m-0"><i class="far fa-laugh"></i></p>' +
-                '<button type="submit" class="btn btn-primary">Submit</button>' +
+                '<span class="m-0 ps-2" style="font-size: 12px;">' + timeAgo + ' </span>' +
+                '<p class="mb-0">' + reply.content + '</p>' +
+                '<span class="share-container">' +
+                '<span class="share-content ps-2"><i class="fas fa-share-square"></i></span>' +
+                '<div class="social-network">' +
+                '<a href="https://www.facebook.com/sharer/sharer.php?u=http://comment-system.test/home" target="_blank"><i class="fab fa-facebook-square fs-3 pe-2" title="Facebook"></i></a>' +
+                '<a href="https://twitter.com/intent/tweet?&url=http://comment-system.test/home" target="_blank"><i class="fab fa-twitter-square fs-3 pe-2" title="Twitter"></i></a>' +
+                '<a href="https://t.me/share/url?url=http://comment-system.test/home" target="_blank"><i class="fab fa-telegram fs-3 pe-2" title="Telegram"></i></a>' +
+                '<a href="https://www.linkedin.com/shareArticle?mini=true&title=Comment System&url=http%3A%2F%2Fcomment-system.test%2Fhome" target="_blank"><i class="fab fa-linkedin fs-3 pe-2" title="Linkedin"></i></a>' +
+                '<a href="https://www.reddit.com/submit?url=http://comment-system.test/home" target="_blank"><i class="fab fa-reddit-square fs-3 pe-2" title="Reddit"></i></a>' +
+                '<a href="https://www.quora.com/share?url=http://comment-system.test/home" target="_blank"><i class="fab fa-quora fs-3 pe-2" title="Quora"></i></a>' +
+                '<a class="tumblr-share-button" href="https://www.tumblr.com/share?url=http://comment-system.test/home" target="_blank"><i class="fab fa-tumblr-square fs-3 pe-2" title="Tumblr"></i></a>' +
+                '<a class="count_pinterest" href="javascript:pinIt();"><i class="fab fa-pinterest-square fs-3 pe-2" title="Pinterest"></i></a>' +
                 '</div>' +
-                '</form>' +
+                '</span>' +
                 '<div class="replies">';
 
             if (Array.isArray(reply.replies) && reply.replies.length > 0) {
@@ -234,17 +273,40 @@
                         var currentTime = new Date();
                         var timeDifference = Math.abs(currentTime - createdTime);
                         var minutesDifference = Math.floor(timeDifference / (1000 * 60));
-                        if (minutesDifference === 0) {
-                            minutesDifference = 1;
+                        var timeAgo;
+
+                        if (minutesDifference < 6) {
+                            timeAgo = minutesDifference + ' minute ago';
+                        } else if (minutesDifference < 60) {
+                            timeAgo = minutesDifference + ' minutes ago';
+                        } else if (minutesDifference < 1440) { // 1440 minutes = 24 hours
+                            timeAgo = Math.floor(minutesDifference / 60) + ' hours ago';
+                        } else {
+                            timeAgo = Math.floor(minutesDifference / 1440) + ' days ago';
+                        }
+
+                        if (timeAgo === '0 minute ago') {
+                            timeAgo = 'Just sent';
                         }
                         var newCommentHTML =
-
                             '<div class="comment">' +
                             '<label for="commentName" class="form-label fw-bold mb-2 fs-5">' + response.comment.user + '</label>' +
-                            // '<p class="m-0">' + minutesDifference + 'minute ago</p>' +
+                            '<span class="m-0 ps-2" style="font-size: 12px;">' + timeAgo + ' </span>' +
                             '<p>' + response.comment.content + '</p>' +
-                            '<button class="reply-btn btn btn-outline-primary" data-parent-id="' + response.comment.id + '">Reply</button>' +
-
+                            '<button class="reply-btn btn btn-outline-primary" data-parent-id="' + response.comment.id + '" style="font-size: 10px;">Reply</button>' +
+                            '<span class="share-container">' +
+                            '<span class="share-content ps-2"><i class="fas fa-share-square"></i></span>' +
+                            '<div class="social-network">' +
+                            '<a href="https://www.facebook.com/sharer/sharer.php?u=http://comment-system.test/home" target="_blank"><i class="fab fa-facebook-square fs-3 pe-2" title="Facebook"></i></a>' +
+                            '<a href="https://twitter.com/intent/tweet?&url=http://comment-system.test/home" target="_blank"><i class="fab fa-twitter-square fs-3 pe-2" title="Twitter"></i></a>' +
+                            '<a href="https://t.me/share/url?url=http://comment-system.test/home" target="_blank"><i class="fab fa-telegram fs-3 pe-2" title="Telegram"></i></a>' +
+                            '<a href="https://www.linkedin.com/shareArticle?mini=true&title=Comment System&url=http%3A%2F%2Fcomment-system.test%2Fhome" target="_blank"><i class="fab fa-linkedin fs-3 pe-2" title="Linkedin"></i></a>' +
+                            '<a href="https://www.reddit.com/submit?url=http://comment-system.test/home" target="_blank"><i class="fab fa-reddit-square fs-3 pe-2" title="Reddit"></i></a>' +
+                            '<a href="https://www.quora.com/share?url=http://comment-system.test/home" target="_blank"><i class="fab fa-quora fs-3 pe-2" title="Quora"></i></a>' +
+                            '<a class="tumblr-share-button" href="https://www.tumblr.com/share?url=http://comment-system.test/home" target="_blank"><i class="fab fa-tumblr-square fs-3 pe-2" title="Tumblr"></i></a>' +
+                            '<a class="count_pinterest" href="javascript:pinIt();"><i class="fab fa-pinterest-square fs-3 pe-2" title="Pinterest"></i></a>' +
+                            '</div>' +
+                            '</span>' +
                             '<form class="reply-form" style="display: none;">' +
                             '@csrf' +
                             '<label for="commentName" class="form-label fw-bold fs-5">{{ auth()->user()->name }}</label>' +
@@ -303,28 +365,27 @@
                         var currentTime = new Date();
                         var timeDifference = Math.abs(currentTime - createdTime);
                         var minutesDifference = Math.floor(timeDifference / (1000 * 60));
-                        if (minutesDifference === 0) {
-                            minutesDifference = 1;
+                        var timeAgo;
+
+                        if (minutesDifference < 6) {
+                            timeAgo = minutesDifference + ' minute ago';
+                        } else if (minutesDifference < 60) {
+                            timeAgo = minutesDifference + ' minutes ago';
+                        } else if (minutesDifference < 1440) { // 1440 minutes = 24 hours
+                            timeAgo = Math.floor(minutesDifference / 60) + ' hours ago';
+                        } else {
+                            timeAgo = Math.floor(minutesDifference / 1440) + ' days ago';
+                        }
+
+                        if (timeAgo === '0 minute ago') {
+                            timeAgo = 'Just sent';
                         }
                         // Thêm reply mới vào danh sách hiển thị
                         var newReplyHTML =
                             '<div class="comment">' +
                             '<label for="commentName" class="form-label fw-bold mb-2 fs-5">' + response.comment.user + '</label>' +
-                            '<p class="m-0">' + minutesDifference + 'minute ago</p>' +
+                            '<span class="m-0 ps-2" style="font-size: 12px;">' + timeAgo + ' </span>' +
                             '<p>' + response.comment.content + '</p>' +
-                            '<button class="reply-btn btn btn-outline-primary" data-parent-id="' + response.comment.id + '">Reply</button>' +
-
-                            '<form class="reply-form" style="display: none;">' +
-                            '@csrf' +
-                            '<label for="commentName" class="form-label fw-bold fs-5">{{ auth()->user()->name }}</label>' +
-                            '<input type="hidden" name="parent_id" value="' + response.comment.id + '">' +
-                            '<input type="hidden" name="user_id" value="{{ auth()->user()->id }}">' +
-                            '<input type="text" class="form-control commentText pb-2 mb-2 rounded-0 text-dark border-bottom border-dark outline-0 border-0" name="content" placeholder="Enter your reply">' +
-                            '<div class="d-flex justify-content-between align-items-center my-2">' +
-                            '<p id="iconButton" class="m-0"><i class="far fa-laugh"></i></p>' +
-                            '<button type="submit" class="btn btn-primary">Submit</button>' +
-                            '</div>' +
-                            '</form>' +
                             '<div class="replies"></div>' +
                             '</div>';
                         ;
@@ -410,20 +471,13 @@
             }
         });
 
-        const shareContents = document.querySelectorAll('.share-content');
+        $(document).on('click', '.share-content', function() {
+            var socialNetwork = $(this).next('.social-network');
+            socialNetwork.toggle();
+        });
 
-        shareContents.forEach(function (shareContent) {
-            const socialNetwork = shareContent.nextElementSibling;
-
-            shareContent.addEventListener('click', function () {
-                socialNetwork.style.display = (socialNetwork.style.display === 'block') ? 'none' : 'block';
-            });
-
-            socialNetwork.addEventListener('click', function (e) {
-                if (e.target.tagName === 'A') {
-                    socialNetwork.style.display = 'none';
-                }
-            });
+        $(document).on('click', '.social-network a', function(e) {
+            e.stopPropagation(); // Prevent the click event from bubbling up
         });
 
 
