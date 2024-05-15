@@ -42,7 +42,6 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
         $this->middleware('guest:admin')->except('logout');
-        $this->middleware('guest:vendor')->except('logout');
     }
 
     public function showAdminLoginForm()

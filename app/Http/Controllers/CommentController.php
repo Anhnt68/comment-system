@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Comment;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
@@ -34,37 +35,35 @@ class CommentController extends Controller
     public function store(Request $request)
     {
         try {
-            $comment = $request->all();
-            $url = md5(url()->to('/'));
-            $comment['url'] = $url;
-            $user = auth()->user();
-            $users = $user->only(['id', 'name', 'email', 'password']);
-            $username = $user->name;
-            $password = $user->password;
-            $response = $this->sendDataToOtherAPI($comment, $users, $username, $password);
-            if ($response['success']) {
-                $commentData = $response['comment'];
-                $commentData['user'] = $username;
-                return response()->json([
-                    'success' => true,
-                    'comment' => $commentData,
-                ]);
-            } else {
-                throw new \Exception('Failed to send data to other application');
-            }
+            $comments = $request->all();
+            $urlHash = md5(url()->to('/'));
+            $comments['url'] = $urlHash;
+            $domain = $comments['url'];
+            $urlModel = \App\Models\Url::firstOrCreate(['url' => $domain]);
+            $comment = new \App\Models\Comment();
+            $comment->url_id = $urlModel->id;
+            $comment->fill($comments);
+            $comment->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Comment created successfully',
+                'comment' => $comment
+            ]);
         } catch (\Exception $exception) {
-            Log::error($exception->getMessage());
+            \Log::error($exception->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create comment'
-            ]);
+            ], 500);
         }
     }
+
 
     public function sendDataToOtherAPI($comment, $user, $username, $password)
     {
         try {
-            $response = Http::withBasicAuth($username, $password)->post('http://127.0.0.1:8000/api/comment/', [
+            $response = Http::withBasicAuth('anhnt683@gmail.com', 'anhnt683@gmail.com')->post('http://127.0.0.1:8000/api/comment/', [
                 'comment' => $comment,
                 'user' => $user
             ]);
@@ -82,7 +81,31 @@ class CommentController extends Controller
         }
     }
 
-
+//    public function store(Request $request)
+//    {
+//        try {
+//            $comments = $request->comment;
+//            $domain = $comments['url'];
+//            $urlModel = \App\Models\Url::where('url', $domain)->first();
+//
+//            if (!$urlModel) {
+//                $newUrlModel = new \App\Models\Url();
+//                $newUrlModel->url = $domain;
+//                $newUrlModel->save();
+//                $urlId = $newUrlModel->id;
+//            } else {
+//                $urlId = $urlModel->id;
+//            }
+//            $comment = new Comment();
+//            $comment->url_id = $urlId;
+//            $comment->fill($comments);
+//            $comment->save();
+//            return response()->json(['success' => true, 'message' => 'Comment created successfully','comment'=>$comment]);
+//        } catch (\Exception $exception) {
+//            Log::error($exception->getMessage());
+//            return response()->json(['success' => false, 'message' => 'Failed to create comment']);
+//        }
+//    }
     /**
      * Display the specified resource.
      */

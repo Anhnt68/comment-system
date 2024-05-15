@@ -7,7 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 
-Route::get('/', function () {
+Route::get('/wellcome', function () {
     return view('welcome');
 });
 
@@ -15,14 +15,10 @@ Auth::routes();
 
 Route::get('/admin/register', [RegisterController::class, 'showAdminRegisterForm'])->name('admin.register-view');
 Route::post('/admin/register', [RegisterController::class, 'createAdmin'])->name('admin.register');
-
-Route::get('/admin', [LoginController::class, 'showAdminLoginForm'])->name('admin.login-view');
+//
+Route::get('/admin', [LoginController::class, 'showAdminLoginForm'])->name('admin.login');
 Route::post('/admin', [LoginController::class, 'adminLogin'])->name('admin.login');
-// ⬆️⬆️⬆️ Admin
-
-
-
-
+//// ⬆️⬆️⬆️ Admin
 // Route::get('/comment', [HomeController::class, 'store'])->name('comment');
 
 Route::get('/admin/dashboard', function () {

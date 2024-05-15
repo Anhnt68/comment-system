@@ -11,12 +11,12 @@
     <meta property="og:description" content="Your Page Description">
     <meta property="og:image"
           content="https://store-images.s-microsoft.com/image/apps.39241.13695268441854138.b66d38c1-5399-4eb1-919c-81ca75db686f.2c431d86-0de1-4c9a-a4ca-53cc8332ef13?h=464">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Comments</title>
+    <link rel="stylesheet" href="https://rawgit.com/mervick/emojionearea/master/dist/emojionearea.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://platform.tumblr.com/v1/share.js"></script>
 
 </head>
 
@@ -76,8 +76,8 @@
         </div>
     </div>
 </nav>
-<div class="container comment mt-5">
-
+<script></script>
+<div class="box-comment-system comment mt-5">
 </div>
 
 <style>
@@ -86,17 +86,13 @@
     }
 
     .comment1 {
-        border-left: 2px solid #ccc;
-        padding-left: 10px;
+        padding-left: 55px;
     }
 
-    .comment:first-child {
-        border-left: none;
-    }
 
     .reply-form,
     .replies {
-        margin-left: 20px;
+        margin-left: 55px;
     }
 
     .reply-btn {
@@ -106,393 +102,11 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
         crossorigin="anonymous"></script>
-<script>
-    $(document).ready(function () {
-        // Perform AJAX request to fetch comments data
-        $.ajax({
-            type: 'GET',
-            url: "http://127.0.0.1:8000/api/comment/",
-            dataType: 'json',
-            success: function (response) {
-                console.log(response)
-                if (response.success) {
-                    var formDefault = '<h1>Comments</h1>' +
-                        '<form id="commentForm" action="{{ route('comment.store') }}" method="post">' +
-                        '@csrf' +
-                        '<input type="hidden" name="user_id" value="{{ auth()->user()->id }}">' +
-                        '<input type="hidden" name="parent_id">' +
-                        '<label for="commentName" class="form-label fw-bold commentName mb-2 fs-5">{{ auth()->user()->name }}</label>' +
-                        '<input type="text" class="form-control commentText pb-2 mb-4 rounded-0 text-dark border-bottom border-dark outline-0 border-0" name="content" id="commentText" placeholder="Enter your reply">' +
-                        '<div class="d-flex justify-content-between align-items-center my-2">' +
-                        '<p id="iconButton" class="m-0 iconButton"><i class="far fa-laugh"></i></p>' +
-                        '<button type="submit" class="btn btn-primary"> Submit </button>' +
-                        '</div>' +
-                        '</form>' +
-                        '<div id="comments">' +
-                        '</div>';
-
-                    $('.container.comment').prepend(formDefault);
-                    response.comment.forEach(function (comment) {
-                        renderComment(comment);
-                    });
-                } else {
-                    console.error('Failed to fetch comments');
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error('Error:', error);
-            }
-        });
-
-        function renderComment(comment) {
-            var createdTime = new Date(comment.created_at);
-            var currentTime = new Date();
-            var timeDifference = Math.abs(currentTime - createdTime);
-            var minutesDifference = Math.floor(timeDifference / (1000 * 60));
-            var timeAgo;
-
-            if (minutesDifference < 6) {
-                timeAgo = minutesDifference + ' minute ago';
-            } else if (minutesDifference < 60) {
-                timeAgo = minutesDifference + ' minutes ago';
-            } else if (minutesDifference < 1440) { // 1440 minutes = 24 hours
-                timeAgo = Math.floor(minutesDifference / 60) + ' hours ago';
-            } else {
-                timeAgo = Math.floor(minutesDifference / 1440) + ' days ago';
-            }
-
-            if (timeAgo === '0 minute ago') {
-                timeAgo = 'Just sent';
-            }
-            var newCommentHTML =
-                '<div class="comment">' +
-                '<label for="commentName" class="form-label fw-bold mb-2 fs-5">' + comment.user.name + '</label>' +
-                '<span class="m-0 ps-2" style="font-size: 12px;">' + timeAgo + ' </span>' +
-                '<p class="mb-0">' + comment.content + '</p>' +
-                '<button class="reply-btn btn btn-outline-primary" data-parent-id="' + comment.id + '" style="font-size: 10px;">Reply</button>' +
-                '<span class="share-container">' +
-                '<span class="share-content ps-2"><i class="fas fa-share-square"></i></span>' +
-                '<div class="social-network">' +
-                '<a href="https://www.facebook.com/sharer/sharer.php?u=http://comment-system.test/home" target="_blank"><i class="fab fa-facebook-square fs-3 pe-2" title="Facebook"></i></a>' +
-                '<a href="https://twitter.com/intent/tweet?&url=http://comment-system.test/home" target="_blank"><i class="fab fa-twitter-square fs-3 pe-2" title="Twitter"></i></a>' +
-                '<a href="https://t.me/share/url?url=http://comment-system.test/home" target="_blank"><i class="fab fa-telegram fs-3 pe-2" title="Telegram"></i></a>' +
-                '<a href="https://www.linkedin.com/shareArticle?mini=true&title=Comment System&url=http%3A%2F%2Fcomment-system.test%2Fhome" target="_blank"><i class="fab fa-linkedin fs-3 pe-2" title="Linkedin"></i></a>' +
-                '<a href="https://www.reddit.com/submit?url=http://comment-system.test/home" target="_blank"><i class="fab fa-reddit-square fs-3 pe-2" title="Reddit"></i></a>' +
-                '<a href="https://www.quora.com/share?url=http://comment-system.test/home" target="_blank"><i class="fab fa-quora fs-3 pe-2" title="Quora"></i></a>' +
-                '<a class="tumblr-share-button" href="https://www.tumblr.com/share?url=http://comment-system.test/home" target="_blank"><i class="fab fa-tumblr-square fs-3 pe-2" title="Tumblr"></i></a>' +
-                '<a class="count_pinterest" href="javascript:pinIt();"><i class="fab fa-pinterest-square fs-3 pe-2" title="Pinterest"></i></a>' +
-                '</div>' +
-                '</span>' +
-                '<form class="reply-form" style="display: none;">' +
-                '@csrf' +
-                '<input type="hidden" name="parent_id" value="' + comment.id + '">' +
-                '<input type="hidden" name="user_id" value="{{ auth()->user()->id }}">' +
-                '<label for="commentName" class="form-label fw-bold commentName mb-2 fs-5">{{ auth()->user()->name }}</label>' +
-                '<input type="text" class="form-control commentText pb-2 mb-2 rounded-0 text-dark border-bottom border-dark outline-0 border-0" name="content" placeholder="Enter your reply">' +
-                '<div class="d-flex justify-content-between align-items-center my-2">' +
-                '<p id="iconButton" class="m-0"><i class="far fa-laugh"></i></p>' +
-                '<button type="submit" class="btn btn-primary">Submit</button>' +
-                '</div>' +
-                '</form>' +
-                '<div class="replies"></div>';
-
-            if (Array.isArray(comment.replies) && comment.replies.length > 0) {
-                comment.replies.forEach(function (reply) {
-                    var user = comment.user.name;
-                    newCommentHTML += renderReply(reply,user);
-                });
-            }
-
-            newCommentHTML += '</div>';
-            // Append the new comment HTML to the container
-            $('.container.comment').append(newCommentHTML);
-        }
-
-        function renderReply(reply ,user) {
-            var createdTime = new Date(reply.created_at);
-            var currentTime = new Date();
-            var timeDifference = Math.abs(currentTime - createdTime);
-            var minutesDifference = Math.floor(timeDifference / (1000 * 60));
-            var timeAgo;
-
-            if (minutesDifference < 6) {
-                timeAgo = minutesDifference + ' minute ago';
-            } else if (minutesDifference < 60) {
-                timeAgo = minutesDifference + ' minutes ago';
-            } else if (minutesDifference < 1440) { // 1440 minutes = 24 hours
-                timeAgo = Math.floor(minutesDifference / 60) + ' hours ago';
-            } else {
-                timeAgo = Math.floor(minutesDifference / 1440) + ' days ago';
-            }
-
-            if (timeAgo === '0 minute ago') {
-                timeAgo = 'Just sent';
-            }
-
-
-            var replyHTML =
-                '<div class="comment1">' +
-                '<label for="commentName" class="form-label fw-bold mb-2 fs-5">' + user + '</label>' +
-                '<span class="m-0 ps-2" style="font-size: 12px;">' + timeAgo + ' </span>' +
-                '<p class="mb-0">' + reply.content + '</p>' +
-                '<span class="share-container">' +
-                '<span class="share-content ps-2"><i class="fas fa-share-square"></i></span>' +
-                '<div class="social-network">' +
-                '<a href="https://www.facebook.com/sharer/sharer.php?u=http://comment-system.test/home" target="_blank"><i class="fab fa-facebook-square fs-3 pe-2" title="Facebook"></i></a>' +
-                '<a href="https://twitter.com/intent/tweet?&url=http://comment-system.test/home" target="_blank"><i class="fab fa-twitter-square fs-3 pe-2" title="Twitter"></i></a>' +
-                '<a href="https://t.me/share/url?url=http://comment-system.test/home" target="_blank"><i class="fab fa-telegram fs-3 pe-2" title="Telegram"></i></a>' +
-                '<a href="https://www.linkedin.com/shareArticle?mini=true&title=Comment System&url=http%3A%2F%2Fcomment-system.test%2Fhome" target="_blank"><i class="fab fa-linkedin fs-3 pe-2" title="Linkedin"></i></a>' +
-                '<a href="https://www.reddit.com/submit?url=http://comment-system.test/home" target="_blank"><i class="fab fa-reddit-square fs-3 pe-2" title="Reddit"></i></a>' +
-                '<a href="https://www.quora.com/share?url=http://comment-system.test/home" target="_blank"><i class="fab fa-quora fs-3 pe-2" title="Quora"></i></a>' +
-                '<a class="tumblr-share-button" href="https://www.tumblr.com/share?url=http://comment-system.test/home" target="_blank"><i class="fab fa-tumblr-square fs-3 pe-2" title="Tumblr"></i></a>' +
-                '<a class="count_pinterest" href="javascript:pinIt();"><i class="fab fa-pinterest-square fs-3 pe-2" title="Pinterest"></i></a>' +
-                '</div>' +
-                '</span>' +
-                '<div class="replies">';
-
-            if (Array.isArray(reply.replies) && reply.replies.length > 0) {
-                reply.replies.forEach(function (nestedReply) {
-                    replyHTML += renderReply(nestedReply);
-                });
-            }
-            replyHTML += '</div></div>';
-            return replyHTML;
-        }
-
-        $(document).on('submit', '#commentForm', function (e) {
-            e.preventDefault();
-            var formData = $(this).serialize();
-            $.ajax({
-                type: 'POST',
-                url: "{{ route('comment.store') }}",
-                data: formData,
-                success: function (response) {
-                    console.log(response.comment);
-                    if (response.success) {
-                        var createdTime = new Date(response.comment.created_at);
-                        var currentTime = new Date();
-                        var timeDifference = Math.abs(currentTime - createdTime);
-                        var minutesDifference = Math.floor(timeDifference / (1000 * 60));
-                        var timeAgo;
-
-                        if (minutesDifference < 6) {
-                            timeAgo = minutesDifference + ' minute ago';
-                        } else if (minutesDifference < 60) {
-                            timeAgo = minutesDifference + ' minutes ago';
-                        } else if (minutesDifference < 1440) { // 1440 minutes = 24 hours
-                            timeAgo = Math.floor(minutesDifference / 60) + ' hours ago';
-                        } else {
-                            timeAgo = Math.floor(minutesDifference / 1440) + ' days ago';
-                        }
-
-                        if (timeAgo === '0 minute ago') {
-                            timeAgo = 'Just sent';
-                        }
-                        var newCommentHTML =
-                            '<div class="comment">' +
-                            '<label for="commentName" class="form-label fw-bold mb-2 fs-5">' + response.comment.user + '</label>' +
-                            '<span class="m-0 ps-2" style="font-size: 12px;">' + timeAgo + ' </span>' +
-                            '<p>' + response.comment.content + '</p>' +
-                            '<button class="reply-btn btn btn-outline-primary" data-parent-id="' + response.comment.id + '" style="font-size: 10px;">Reply</button>' +
-                            '<span class="share-container">' +
-                            '<span class="share-content ps-2"><i class="fas fa-share-square"></i></span>' +
-                            '<div class="social-network">' +
-                            '<a href="https://www.facebook.com/sharer/sharer.php?u=http://comment-system.test/home" target="_blank"><i class="fab fa-facebook-square fs-3 pe-2" title="Facebook"></i></a>' +
-                            '<a href="https://twitter.com/intent/tweet?&url=http://comment-system.test/home" target="_blank"><i class="fab fa-twitter-square fs-3 pe-2" title="Twitter"></i></a>' +
-                            '<a href="https://t.me/share/url?url=http://comment-system.test/home" target="_blank"><i class="fab fa-telegram fs-3 pe-2" title="Telegram"></i></a>' +
-                            '<a href="https://www.linkedin.com/shareArticle?mini=true&title=Comment System&url=http%3A%2F%2Fcomment-system.test%2Fhome" target="_blank"><i class="fab fa-linkedin fs-3 pe-2" title="Linkedin"></i></a>' +
-                            '<a href="https://www.reddit.com/submit?url=http://comment-system.test/home" target="_blank"><i class="fab fa-reddit-square fs-3 pe-2" title="Reddit"></i></a>' +
-                            '<a href="https://www.quora.com/share?url=http://comment-system.test/home" target="_blank"><i class="fab fa-quora fs-3 pe-2" title="Quora"></i></a>' +
-                            '<a class="tumblr-share-button" href="https://www.tumblr.com/share?url=http://comment-system.test/home" target="_blank"><i class="fab fa-tumblr-square fs-3 pe-2" title="Tumblr"></i></a>' +
-                            '<a class="count_pinterest" href="javascript:pinIt();"><i class="fab fa-pinterest-square fs-3 pe-2" title="Pinterest"></i></a>' +
-                            '</div>' +
-                            '</span>' +
-                            '<form class="reply-form" style="display: none;">' +
-                            '@csrf' +
-                            '<label for="commentName" class="form-label fw-bold fs-5">{{ auth()->user()->name }}</label>' +
-                            '<input type="hidden" name="parent_id" value="' + response.comment.id + '">' +
-                            '<input type="hidden" name="user_id" value="{{ auth()->user()->id }}">' +
-                            '<input type="text" class="form-control commentText pb-2 mb-2 rounded-0 text-dark border-bottom border-dark outline-0 border-0" name="content" placeholder="Enter your reply">' +
-                            '<div class="d-flex justify-content-between align-items-center my-2">' +
-                            '<p id="iconButton" class="m-0"><i class="far fa-laugh"></i></p>' +
-                            '<button type="submit" class="btn btn-primary">Submit</button>' +
-                            '</div>' +
-                            '</form>' +
-                            '<div class="replies"></div>' +
-                            '</div>';
-
-
-                        // Nếu là comment cấp 1, thêm vào #comments
-                        if (response.comment.parent_id == null) {
-                            $('#comments').prepend(newCommentHTML);
-                            $('.commentText').val('');
-                        } else {
-                            var parentComment = $('#comments').find(
-                                '.comment[data-comment-id="' + response.comment
-                                    .parent_id + '"]');
-                            if (parentComment.length > 0) {
-                                parentComment.find('.replies').prepend(newCommentHTML);
-                            } else {
-                                $('#comments').prepend(newCommentHTML);
-                            }
-                        }
-
-                        // Xóa nội dung trong input
-                        $('#commentForm input[name="content"]').val('');
-                    } else {
-                        console.error('Failed to create comment');
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error(xhr.responseText);
-                }
-            });
-        });
-
-
-        $(document).on('submit', '.reply-form', function (e) {
-            e.preventDefault();
-            var formData = $(this).serialize();
-            var $form = $(this);
-            $.ajax({
-                type: 'POST',
-                url: "{{ route('comment.store') }}",
-                data: formData,
-                success: function (response) {
-                    console.log(response);
-                    if (response.success) {
-                        var createdTime = new Date(response.comment.created_at);
-                        var currentTime = new Date();
-                        var timeDifference = Math.abs(currentTime - createdTime);
-                        var minutesDifference = Math.floor(timeDifference / (1000 * 60));
-                        var timeAgo;
-
-                        if (minutesDifference < 6) {
-                            timeAgo = minutesDifference + ' minute ago';
-                        } else if (minutesDifference < 60) {
-                            timeAgo = minutesDifference + ' minutes ago';
-                        } else if (minutesDifference < 1440) { // 1440 minutes = 24 hours
-                            timeAgo = Math.floor(minutesDifference / 60) + ' hours ago';
-                        } else {
-                            timeAgo = Math.floor(minutesDifference / 1440) + ' days ago';
-                        }
-
-                        if (timeAgo === '0 minute ago') {
-                            timeAgo = 'Just sent';
-                        }
-                        // Thêm reply mới vào danh sách hiển thị
-                        var newReplyHTML =
-                            '<div class="comment">' +
-                            '<label for="commentName" class="form-label fw-bold mb-2 fs-5">' + response.comment.user + '</label>' +
-                            '<span class="m-0 ps-2" style="font-size: 12px;">' + timeAgo + ' </span>' +
-                            '<p>' + response.comment.content + '</p>' +
-                            '<div class="replies"></div>' +
-                            '</div>';
-                        ;
-                        $form.siblings('.replies').prepend(newReplyHTML);
-                        // Xóa nội dung trong input
-                        $('.commentText').val('');
-
-                    } else {
-                        console.error('Failed to create reply');
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error(xhr.responseText);
-                }
-            });
-        });
-
-
-        // Hiển thị form reply khi nhấp vào nút Reply
-        $(document).on('click', '.reply-btn', function () {
-            var $replyForm = $(this).siblings('.reply-form');
-            var parentId = $(this).data('parent-id');
-
-            // Toggle hiển thị/ẩn form reply
-            $replyForm.toggle();
-
-            // Nếu form reply được hiển thị, thiết lập giá trị cho input parent_id
-            if ($replyForm.is(':visible')) {
-                $replyForm.find('input[name="parent_id"]').val(parentId);
-            }
-        });
-
-        $(document).on('click', '.iconButton', function () {
-            var modal = $('#iconModal');
-            modal.css('display', 'block');
-
-            var iconList = $('#iconList');
-            iconList.html(''); // Xóa nội dung cũ
-
-            var icons = [
-                '\u{1F600}', '\u{1F601}', '\u{1F602}', '\u{1F603}', '\u{1F604}', '\u{1F605}', '\u{1F606}', '\u{1F607}', '\u{1F608}', '\u{1F609}',
-                '\u{1F60A}', '\u{1F60B}', '\u{1F60C}', '\u{1F60D}', '\u{1F60E}', '\u{1F60F}', '\u{1F610}', '\u{1F611}', '\u{1F612}', '\u{1F613}',
-                '\u{1F614}', '\u{1F615}', '\u{1F616}', '\u{1F617}', '\u{1F618}', '\u{1F619}', '\u{1F61A}', '\u{1F61B}', '\u{1F61C}', '\u{1F61D}',
-                '\u{1F61E}', '\u{1F61F}', '\u{1F620}', '\u{1F621}', '\u{1F622}', '\u{1F623}', '\u{1F624}', '\u{1F625}', '\u{1F626}', '\u{1F627}',
-                '\u{1F628}', '\u{1F629}', '\u{1F62A}', '\u{1F62B}', '\u{1F62C}', '\u{1F62D}', '\u{1F62E}', '\u{1F62F}', '\u{1F630}', '\u{1F631}',
-                '\u{1F632}', '\u{1F633}', '\u{1F634}', '\u{1F635}', '\u{1F636}', '\u{1F637}', '\u{1F638}', '\u{1F639}', '\u{1F63A}', '\u{1F63B}',
-                '\u{1F63C}', '\u{1F63D}', '\u{1F63E}', '\u{1F63F}', '\u{1F640}'
-            ];
-
-            icons.forEach(function (icon) {
-                var iconElement = $('<span class="icon">' + icon + '</span>');
-                iconElement.css({
-                    'font-size': '24px',
-                    'cursor': 'pointer',
-                    'margin': '5px'
-                });
-                iconElement.on('click', function () {
-                    var commentText = $(this).closest('.comment').find('.commentText');
-                    var currentText = commentText.val();
-                    var newIcon = ' ' + icon;
-                    commentText.val(currentText + newIcon);
-                    modal.css('display', 'none');
-                });
-                iconList.append(iconElement);
-            });
-        });
-
-        var commentText = $('#commentText');
-        var submitButton = $('#submitButton');
-
-        // Khi input được focus
-        commentText.focus(function () {
-            submitButton.show(); // Hiển thị nút submit
-            $(this).addClass('active'); // Thêm class "active" cho input được focus
-        });
-
-        // Khi input mất focus
-        commentText.blur(function () {
-            // Nếu không có text trong input
-            if ($(this).val().trim() === '') {
-                submitButton.hide(); // Ẩn nút submit
-                $(this).removeClass('active'); // Xóa class "active" cho input
-            }
-        });
-
-        $(document).on('click', '.share-content', function() {
-            var socialNetwork = $(this).next('.social-network');
-            socialNetwork.toggle();
-        });
-
-        $(document).on('click', '.social-network a', function(e) {
-            e.stopPropagation(); // Prevent the click event from bubbling up
-        });
-
-
-        function pinIt() {
-            var e = document.createElement('script');
-            e.setAttribute('type', 'text/javascript');
-            e.setAttribute('charset', 'UTF-8');
-            e.setAttribute('src', 'https://assets.pinterest.com/js/pinmarklet.js?r=' + Math.random() * 99999999);
-            document.body.appendChild(e);
-        }
-
-    });
-
-
-</script>
+<script src="{{asset('asset/js/jquery_321/jquery-3.2.1.js')}}"></script>
+<script src="https://platform.tumblr.com/v1/share.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://rawgit.com/mervick/emojionearea/master/dist/emojionearea.js"></script>
+<script src="{{asset('comment.js')}}"></script>
 </body>
 
 </html>
